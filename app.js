@@ -1,11 +1,10 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const date = require(__dirname + "/date.js");
+const mongoose = require("mongoose");
 
 const app = express();
 
-const toDoList = [];
-const workList = [];
+
 // allows to use local .css .png .js files
 // provides the path of our static files to the server
 app.use(express.static("public"));
@@ -23,35 +22,61 @@ app.use(bodyParser.urlencoded({extended: true}));
 // and put all of your view files there
 app.set("view engine", "ejs");
 
+mongoose.connect("mongodb://localhost:27017/todolistDB", {useNewUrlParser: true, useUnifiedTopology: true});
+
+const itemsSchema = mongoose.Schema(
+    {
+        name: String
+    }
+);
+
+const Item = mongoose.model("Item", itemsSchema);
+
 app.get("/", (req, res) => {
-    const day = date.getDate();
 
-    // read tasks from Data base
-    const tasks = {
-        title: day,
-        amountOfTasks: toDoList.length,
-        list: toDoList
-    };
+    Item.find({}, (err, foundItems)=>{
+        if(foundItems.length === 0) {
+            const item1 = new Item({name: "Welcome to your todolist!"});
+            const item2 = new Item ({name: "Hit the + button to add a new item."});
+            const item3 = new Item ({name: "<-- Hit this to delete an item."});
+            Item.insertMany([item1, item2, item3], (err) => {
+                if(err) console.log(err);
+                else console.log("Succesfully saved default items to the todolistDB");
+            }) ;
+            res.redirect("/");
+        }
+        res.render("list", { tasks: {title:"Today", list: foundItems}});
+    });
 
-    res.render("list", {tasks: tasks});
+    
 });
 
 app.post("/", (req, res) => {
-    const newTask = req.body.task;
+    const itemName = req.body.task;
     
-    if(req.body.list === "Work") {
-        workList.push(newTask);
-        res.redirect("/work");
-    } else {
-        toDoList.push(newTask);
-        res.redirect("/");
-    }
+    const item = new Item({name: itemName});
+    item.save();
+
+    res.redirect("/");
 });
+
+app.post("/delete/:_id", (req, res) => {
+    console.log(req.params._id);
+    const id = req.params._id;
+    // if u don't specify callback function, then it will find element by id
+    // and return it, but not remove it.
+    Item.findByIdAndRemove(id, (err) => {
+            if(err) console.log("Error while deleting element with _id: " + id + ", error: " + err);
+            else console.log("Succesfully deleted element with _id: " + id);
+        }
+    );
+    res.redirect("/");
+});
+
 
 app.get("/work", (req, res) => {
     const tasks = {
         title: "Work List",
-        amountOfTasks: workList.length,
         list: workList
     };    
 

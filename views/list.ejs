@@ -6,13 +6,14 @@
 </div>
 
 <div class="box">
-
-    <% for(var i = 0; i < tasks.amountOfTasks; i++) { %>
-    <div class="item">
-        <input type="checkbox">
-        <p><%= tasks.list[i]; %></p>
-    </div>
-    <%}%>
+    <% tasks.list.forEach((item) => { %>
+        <form action="/delete/<%= item._id %>" method="post">
+            <div class="item">
+                <input onChange="this.form.submit()" type="checkbox"/>
+                <p><%= item.name %> </p>
+            </div>
+        </form>
+    <%});%>
 
     <form class = "item" action="/" method="POST">
         <input type="text" name="task" placeholder="New Item" autocomplete="off">
