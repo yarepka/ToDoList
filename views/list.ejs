@@ -1,0 +1,26 @@
+<!-- TRY TO KEEP UR LOGIC INSIDE WEB SERVER -->
+
+<%- include("header") -%>
+<div class="box" id="heading">
+    <h1><%= tasks.title %></h1>
+</div>
+
+<div class="box">
+
+    <% for(var i = 0; i < tasks.amountOfTasks; i++) { %>
+    <div class="item">
+        <input type="checkbox">
+        <p><%= tasks.list[i]; %></p>
+    </div>
+    <%}%>
+
+    <form class = "item" action="/" method="POST">
+        <input type="text" name="task" placeholder="New Item" autocomplete="off">
+        <button type="submit" name="list" value=<%= tasks.title %>>+</button>
+    </form>
+
+</div>
+<%- include("footer") -%>
+    
+
+    
