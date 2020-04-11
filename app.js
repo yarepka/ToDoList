@@ -52,19 +52,17 @@ const item3 = new Item ({name: "<-- Hit this to delete an item."});
 const defaultItems = [item1, item2, item3];
 
 app.get("/", (req, res) => {
-
     Item.find({}, (err, foundItems)=>{
         if(foundItems.length === 0) {
             Item.insertMany(defaultItems, (err) => {
                 if(err) console.log(err);
                 else console.log("Succesfully created and saved default items to the todolistDB");
-            }) ;
+            });
             res.redirect("/");
+        } else {
+            res.render("list", { tasks: {title:"Today", list: foundItems}});
         }
-        res.render("list", { tasks: {title:"Today", list: foundItems}});
     });
-
-    
 });
 
 app.post("/", (req, res) => {
@@ -110,33 +108,27 @@ app.post("/delete/:_id", (req, res) => {
 
 app.get("/:customListName", (req, res) => {
     const customListName = _.capitalize(req.params.customListName);
-    List.findOne({ listName: customListName}, (err, foundList) => {
-        if(!err){
-            if(!foundList) {
-                console.log(customListName + " list does not exists.")
-                // Create a new list
-                const newList = new List({
-                    listName: customListName,
-                    items: defaultItems
-                });
+    if(customListName !== "Favicon.ico") {
+        List.findOne({ listName: customListName}, (err, foundList) => {
+            if(!err){
+                if(!foundList) {
+                    console.log(customListName + " list does not exists.")
+                    // Create a new list
+                    const newList = new List({
+                        listName: customListName,
+                        items: defaultItems
+                    });
 
-                // Insert a new created list with default items to the
-                // "todolistDB", collection "lists"
-                newList.save();
-                res.redirect("/" + customListName);
-            } else {
-                res.render("list", { tasks: {title:foundList.listName, list: foundList.items}});
-            }
-        }    
-    });
-
-    const list = new List({
-        listName: customListName,
-        items: defaultItems
-    });
-
-    list.save();
-
+                    // Insert a new created list with default items to the
+                    // "todolistDB", collection "lists"
+                    newList.save();
+                    res.redirect("/" + customListName);
+                } else {
+                    res.render("list", { tasks: {title:foundList.listName, list: foundList.items}});
+                }
+            }    
+        });
+    }
 });
 
 app.get("/about", (req, res) => {
