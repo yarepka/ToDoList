@@ -12,12 +12,13 @@
                 <input onChange="this.form.submit()" type="checkbox"/>
                 <p><%= item.name %> </p>
             </div>
+            <input type="hidden" name="listName" value="<%= tasks.title %>"></input>
         </form>
     <%});%>
 
     <form class = "item" action="/" method="POST">
         <input type="text" name="task" placeholder="New Item" autocomplete="off">
-        <button type="submit" name="list" value=<%= tasks.title %>>+</button>
+        <button type="submit" name="list" value="<%= tasks.title %>">+</button>
     </form>
 
 </div>
